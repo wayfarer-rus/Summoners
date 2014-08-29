@@ -18,7 +18,7 @@
 			<list>
 				<value>com.summoners.game.models.User</value>
 				<value>com.summoners.game.models.UserRole</value>
-				<value>com.summoners.game.models.Character</value>
+				
 			</list>
 		</property>
 		<property name="hibernateProperties">
