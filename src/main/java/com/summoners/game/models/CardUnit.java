@@ -1,5 +1,11 @@
 package com.summoners.game.models;
 
-public class CardUnit extends Card{
+import com.summoners.game.action.Behavior;
 
+public class CardUnit extends Card{
+	
+	private long id;
+	
+	private Behavior behavior;
+	
 }

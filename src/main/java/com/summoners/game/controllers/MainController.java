@@ -16,23 +16,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-/**
- * Handles requests for the application home page.
- */
 @Controller
 public class MainController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 	
-	@RequestMapping(value = { "/", "/main**" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/", "/main" }, method = RequestMethod.GET)
 	public ModelAndView defaultPage() {
 		logger.info("enter defaultPage()");
 		
 		UserDetails userDetails = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		
 		ModelAndView model = new ModelAndView();
 		model.addObject("title", "Welcome, " + userDetails.getUsername());
-		
 		model.setViewName("main");
 		return model;
 

@@ -1,5 +1,6 @@
 <%@taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
+<%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <html>
 <head>
@@ -19,39 +20,27 @@
 
 <script	src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script type="text/javascript">
-function createAjax() {
+/* function createAjax() {
 	$.ajax({
 		url : 'createGame',
 		type : 'GET',
 		 data : ({
 			command : "create"
 		})
-		/* success : function(data) {
-			if (data != null) {
-				console.log(data);
-				$("#word_eng").val(data.split("&")[1]);
-				$("#word_article").val(data.split("&")[0]);
-			}
-		} */
 	});
-}
+} */
 
-function joinAjax() {
+/* function joinAjax() {
 	$.ajax({
-		url : 'joinGame',
+		url : 'joingame', 
 		type : 'GET',
+		contentType: 'application/json',
 		data : ({
-			command : "join"
+			id : $('#roomID').val(),
+			deckname : $('#joinSelect').val()
 		})
-		/* success : function(data) {
-			if (data != null) {
-				console.log(data);
-				$("#word_eng").val(data.split("&")[1]);
-				$("#word_article").val(data.split("&")[0]);
-			}
-		} */
 	});
-}
+}  */
 </script>
 </head>
 <body>
@@ -80,10 +69,55 @@ function joinAjax() {
 		
 		<div id="button-box">
 		
-			<input name="create" type="button" value="create game" id = "createButton" onclick="createAjax()"/>
+			<form:form method="GET" action="${pageContext.request.contextPath}/creategame.html">
+				<select name="deck">
+    				<option value="b">Benders</option>
+    				<option value="mv">Mountain Vargath</option>
+  				</select>
+				
+				<input name="create" type="submit" value="create game" id = "createButton"/>
+			</form:form>
+			
+		</div>
 		
-			<input name="join" type="button" value="join game" id = "joinButton" onclick="joinAjax()"/>
+		<h3>Ready rooms:</h3>
+		<div id="games-box">
+			<table border="1">
+				<tr>
+					<th width="10%">#</th><th width="10%">User 1:</th><th width="15%">Deck 1:</th><th width="10%">Deck 2</th><th width="10%">Join</th>
+				</tr>
+				<c:forEach var="gameroom" items="${applicationScope.gameengine.gameRooms}" varStatus="theCount">
+					<tr>
+						<td align="center">${theCount.count}</td>
+						<td align="center">${gameroom.user1}</td>
+						<td align="center">${gameroom.deck1}</td>
+						<form:form method="GET" action="${pageContext.request.contextPath}/joingame.html">
+							<td align="center">
+								<select name="deck" id = "joinSelect">
+    								<option value="b">Benders</option>
+    								<option value="mv">Mountain Vargath</option>
+  								</select>
+							</td>
+							<td align="center">
+								<input name="roomID" type="hidden" value=${gameroom.uniqueID} />
+								<input name="join" type="submit" value="join game" />
+							</td>
+						</form:form>
+					</tr>
+					
+				</c:forEach>
+			</table>
 		
+			<%-- <table>
+				<c:forEach items="${gamerooms}" var="gameroom">
+        			<tr>
+            			<td>UniqueID: <c:out value="${gameroom.uniqueID}"/></td>
+            			<td>Created by: <c:out value="${gameroom.user1}"/></td>  
+            			<td>With deck: <c:out value="${gameroom.deck1}"/></td>
+            			<td><a href="${pageContext.request.contextPath}/joinGame">Join</a></td>
+        			</tr>
+			    </c:forEach>
+    		</table> --%>
 		</div>
 		
 	</sec:authorize>
