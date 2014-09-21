@@ -1,9 +1,10 @@
 package com.summoners.game.builder;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeckBuilder {
-  private static final Logger logger = Logger.getLogger(DeckBuilder.class);
+  private static final Logger logger = LoggerFactory.getLogger(DeckBuilder.class);
 
   private DeckBuilder() {
     
