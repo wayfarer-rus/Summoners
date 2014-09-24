@@ -1,6 +1,5 @@
 package com.summoners.game.decks;
 
-import java.util.Observer;
 import java.util.UUID;
 
 import com.summoners.game.Card;
@@ -23,7 +22,7 @@ public class BendersDeck extends Deck {
 			+ "}"
 			+ "}";
 
-	public BendersDeck(Observer eventObserver) {
+	public BendersDeck() {
 		name = "Benders";
 		commonsCount = 18;
 		championsCount = 3;

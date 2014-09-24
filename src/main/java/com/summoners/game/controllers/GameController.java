@@ -36,7 +36,7 @@ public class GameController implements ServletContextAware{
 		GameEngine gameEngine = (GameEngine)servletContext.getAttribute("gameengine");
 		GameRoom gr = new GameRoom();
 		//Init deck by name and all cards
-		Deck deck = DeckController.takeDeck(deckName, gr);
+		Deck deck = DeckController.takeDeck(deckName);
 		gr.addPlayer(new Player(userDetails.getUsername(), deck));
 		gameEngine.addGameRoom(gr);
 		
@@ -68,7 +68,7 @@ public class GameController implements ServletContextAware{
 		}
 
 		//Init deck by name and all cards
-		Deck deck = DeckController.takeDeck(deckName, currentRoom);
+		Deck deck = DeckController.takeDeck(deckName);
 		currentRoom.addPlayer(new Player(userDetails.getUsername(), deck));
 		
 		//Init deck by name and all cards
