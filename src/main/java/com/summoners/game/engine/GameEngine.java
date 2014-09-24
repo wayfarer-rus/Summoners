@@ -6,8 +6,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.summoners.game.builder.Deck;
-import com.summoners.game.objects.Board;
 import com.summoners.game.table.GameRoom;
 
 public class GameEngine {
@@ -27,16 +25,12 @@ public class GameEngine {
 		return instance;
 	}
 	
-	public GameRoom createGame(String userName, Deck deck){
-		logger.info("enter initGame()");
-		
-		Board board = new Board();
-		GameRoom gr = new GameRoom(userName, board, deck);
-		return gr;
+	public void addGameRoom(GameRoom room) {
+		gameRooms.add(room);
 	}
 
 	public List<GameRoom> getGameRooms() {
 		return gameRooms;
 	}
-	
+
 }

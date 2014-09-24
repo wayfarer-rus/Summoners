@@ -15,9 +15,10 @@ import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-import com.summoners.game.builder.DeckBuilder;
-import com.summoners.game.builder.Deck;
+import com.summoners.game.Deck;
+import com.summoners.game.DeckController;
 import com.summoners.game.engine.GameEngine;
+import com.summoners.game.engine.Player;
 import com.summoners.game.table.GameRoom;
 
 @Controller
@@ -33,12 +34,11 @@ public class GameController implements ServletContextAware{
 		logger.info("creategame - Get deck: " + deckName + " from user: " + userDetails.getUsername());
 		
 		GameEngine gameEngine = (GameEngine)servletContext.getAttribute("gameengine");
-		
+		GameRoom gr = new GameRoom();
 		//Init deck by name and all cards
-		Deck deck = DeckBuilder.build(deckName);
-		
-		GameRoom gr = gameEngine.createGame(userDetails.getUsername(), deck);
-		gameEngine.getGameRooms().add(gr);
+		Deck deck = DeckController.takeDeck(deckName, gr);
+		gr.addPlayer(new Player(userDetails.getUsername(), deck));
+		gameEngine.addGameRoom(gr);
 		
 		ModelAndView model = new ModelAndView();
 		model.addObject("gr", gameEngine.getGameRooms());
@@ -53,28 +53,23 @@ public class GameController implements ServletContextAware{
 	
 	@RequestMapping(value = "/joingame", method = RequestMethod.GET)
 	public ModelAndView joinGame(@RequestParam(value = "roomID") String id, @RequestParam(value = "deck") String deckName){
-		
 		logger.info("joinGame");
-		
 		UserDetails userDetails = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		
 		logger.info(id + " " + deckName);
 		
 		GameEngine gameEngine = (GameEngine)servletContext.getAttribute("gameengine");
-		
-		//Init deck by name and all cards
-		Deck deck = DeckBuilder.build(deckName);
-		
-		GameRoom currentRoom;
+		GameRoom currentRoom = null;
 		
 		for(GameRoom gameRoom : gameEngine.getGameRooms()){
 			if(gameRoom.getUniqueID().equals(id)){
 				currentRoom = gameRoom;
-				currentRoom.setUser2(userDetails.getUsername());
-				currentRoom.setDeck2(deck);
+				break;
 			}
 		}
-		
+
+		//Init deck by name and all cards
+		Deck deck = DeckController.takeDeck(deckName, currentRoom);
+		currentRoom.addPlayer(new Player(userDetails.getUsername(), deck));
 		
 		//Init deck by name and all cards
 		//DeckInterface deck = DeckBuilder.build(deckName);
