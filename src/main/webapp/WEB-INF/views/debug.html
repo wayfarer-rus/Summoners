@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+<title>Summoners Debug View</title>
+<link rel="stylesheet" href="debug.css">
+<style>
+#cards {
+	background-color: #eeeeee;
+	width: 300px;
+	height: 900px;
+	float: right;
+	padding: 5px;
+	float: right;
+}
+
+#playground {
+	background-image: url(../../resources/bg/fullhd-world-map.png);
+	width: 920px;
+	height: 1040px;
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-bacground-size: cover;
+	background-size: cover;
+}
+
+#topoffset {
+	background-color: #5A3FF2;
+	width: 920px;
+	height: 130px;
+}
+
+</style>
+<script type="text/javascript" src="ajax.js"></script>
+<script type="text/javascript" src="helpers.js"></script>
+<script type="text/javascript" src="DragObject.js"></script>
+<script type="text/javascript" src="DropTarget.js"></script>
+<script type="text/javascript" src="dragMaster.js"></script>
+<script type="text/javascript" src="masonry.pkgd.min.js"></script>
+<script>
+	window.onload = function() {
+		function initPlayfield() {
+			var container = document.querySelector('.masonry', {columnWidth: 150, itemSelector: '.item'});
+			var msnry = new Masonry( container );
+			var width = 6;
+			var height = 8;
+
+			for (i = 0; i < height; i++) {
+				for (j = 0; j < width; j++) {
+					var div = document.createElement("div");
+					div.className="item";
+					new DropTarget(div);
+					container.appendChild(div);
+					msnry.appended(div);
+					msnry.layout();
+				}
+			}
+		}
+
+		function testImg() {
+			var img = document.createElement("img");
+			img.src = "../../resources/benders/benders.jpg";
+			img.style.cssText = "width: 150px; height: 97px";
+			new DragObject(img);
+			return img;
+		}
+
+		initPlayfield();
+		var appendPoint = document.getElementsByTagName('generated')[0];
+		appendPoint.appendChild(testImg());
+		//alert(1);
+	}
+</script>
+</head>
+<body>
+	<div id=wrapper>
+		<header role="banner">
+			<h1>Summoners debug page</h1>
+		</header>
+		<div id="cards">
+			<generated> </generated>
+		</div>
+		<div id="playground">
+			<div class="masonry" style="top: 130px; left: 10px">
+			</div>
+		</div>
+	</div>
+</body>
+</html>
