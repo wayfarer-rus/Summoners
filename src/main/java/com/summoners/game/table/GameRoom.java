@@ -2,7 +2,9 @@ package com.summoners.game.table;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.summoners.game.engine.Player;
 
