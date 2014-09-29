@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+<title>Summoners Debug View</title>
+<style>
+#cards {
+	background-color: #eeeeee;
+	width: 300px;
+	height: 900px; float : right;
+	padding: 5px;
+	float: right;
+}
+
+#playground {
+	background-image: url(../../resources/bg/fullhd-world-map.png);
+	width: 920px;
+	height: 1040px;
+	background-repeat: no-repeat;
+	background-position: center;
+	margin: 20px;
+	padding: 20px;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-bacground-size: cover;
+	background-size: cover;
+}
+</style>
+<script type="text/javascript" src="ajax.js"></script>
+<script type="text/javascript" src="helpers.js"></script>
+<script type="text/javascript" src="DragObject.js"></script>
+<script type="text/javascript" src="DropTarget.js"></script>
+<script type="text/javascript" src="dragMaster.js"></script>
+<script>
+function getPosition(e){
+    var left = 0
+    var top  = 0
+
+    while (e.offsetParent){
+        left += e.offsetLeft
+        top  += e.offsetTop
+        e    = e.offsetParent
+    }
+
+    left += e.offsetLeft
+    top  += e.offsetTop
+
+    return {x:left, y:top}
+}
+
+window.onload = function() {
+	function testImg() {
+		var img = document.createElement("img");
+        img.src = "../../resources/benders/benders.jpg";
+        img.style.cssText = "width: 160px; height: 90px";
+        new DragObject(img);
+        return img;
+	}
+	var appendPoint = document.getElementsByTagName('generated')[0];
+	appendPoint.appendChild(testImg());
+	//alert(1);
+}
+</script>
+</head>
+<body>
+	<div id=wrapper>
+		<header role="banner">
+			<h1>Summoners debug page</h1>
+		</header>
+		<main>
+		<div id="cards">
+			<generated> </generated>
+		</div>
+		<div id="playground">
+			
+		</div>
+		</main>
+	</div>
+</body>
+</html>
