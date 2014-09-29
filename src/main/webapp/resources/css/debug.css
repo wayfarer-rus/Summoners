@@ -1,0 +1,42 @@
+/*  HTML5 вњ° Boilerplate  */
+html,body,div,span,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,abbr,address,cite,code,del,dfn,em,img,ins,kbd,q,samp,small,strong,sub,sup,var,b,i,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary,time,mark,audio,video
+	{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+/* body {
+	background: url(../img/fullhd-world-map.png);
+	background-attachment: fixed;
+	background-position: 10% 10%;
+	background-size: 600px 600px;
+	background-repeat: no-repeat;
+	background-color: lightblue;
+}  */
+
+.debug_textarea{
+	margin:30;
+	padding:30;
+	width: 600px; 
+  	height: 150px;
+}
+
+/* div.image {
+   content:url(../img/fullhd-world-map.png);
+   content: 
+} */
+
+div.image {
+    display: block;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  background-image:url(../img/fullhd-world-map.png);	
+  background-size: 600px 600px;
+  width: 600px; 
+  height: 600px; 
+  margin: 30px; 
+}​
