@@ -62,7 +62,7 @@
 		<c:if test="${pageContext.request.userPrincipal.name != null}">
 			<h3>
 				User : ${pageContext.request.userPrincipal.name} | 
-				<a href="${pageContext.request.contextPath}/debug.html">debug page</a> | 
+				<a href="${pageContext.request.contextPath}/debug">debug page</a> | 
 				<a href="javascript:formSubmit()"> logout</a> 
 			</h3>
 				
@@ -70,7 +70,7 @@
 		
 		<div id="button-box">
 		
-			<form:form method="GET" action="${pageContext.request.contextPath}/creategame.html">
+			<form:form method="GET" action="${pageContext.request.contextPath}/creategame">
 				<select name="deck">
     				<option value="b">Benders</option>
     				<option value="mv">Mountain Vargath</option>
@@ -88,7 +88,7 @@
 				<c:forEach var="gameroom" items="${applicationScope.gameengine.gameRooms}" varStatus="theCount">
 					room #${theCount.count} : 
 						
-						<form:form method="GET" action="${pageContext.request.contextPath}/joingame.html">
+						<form:form method="GET" action="${pageContext.request.contextPath}/joingame">
 							
 								<select name="deck" id = "joinSelect">
     								<option value="b">Benders</option>
