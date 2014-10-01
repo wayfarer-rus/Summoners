@@ -51,7 +51,7 @@ public class DebugGameController implements ServletContextAware{
 		//model.addObject("currentRoom", gr);
 		//model.addObject("currentPlayer", gp);
 		
-		return "debug.jsp";
+		return "debug.html";
 	}
 	
 	@RequestMapping(value = "/get-state", method = RequestMethod.GET, produces = "application/json")

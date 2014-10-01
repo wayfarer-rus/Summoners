@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<link href="<%=request.getContextPath()%>/resources/css/debug.css"	rel="stylesheet" />
+<link href="<%=request.getContextPath()%>/resources/css/debug_jsp.css"	rel="stylesheet" />
 
 <style>
 /* body {
