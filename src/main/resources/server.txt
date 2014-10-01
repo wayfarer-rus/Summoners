@@ -1,0 +1,4 @@
+<Connector SSLEnabled="true" clientAuth="false" 
+keystoreFile="C:\your path\MyCert.cert" keystorePass="arthur" 
+maxThreads="150" port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" 
+scheme="https" secure="true" sslProtocol="TLS"/>

@@ -87,7 +87,7 @@ public class MainController {
 	@RequestMapping(value = { "/main" }, method = RequestMethod.GET)
 	public String mainPage() {
 		logger.info("in main page");
-		return "/content/main.jsp";
+		return "main.jsp";
 	}
 	
 	@RequestMapping(value = { "/", "/login" }, method = RequestMethod.GET)
@@ -115,7 +115,7 @@ public class MainController {
 			model.addObject("errorMsg", "У вас нет доступа к этой странице!");
 		}
 
-		model.setViewName("/content/accessDenied.jsp");
+		model.setViewName("accessDenied.jsp");
 		return model;
 	}
 	

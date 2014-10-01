@@ -4,7 +4,6 @@ import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -52,7 +51,7 @@ public class DebugGameController implements ServletContextAware{
 		//model.addObject("currentRoom", gr);
 		//model.addObject("currentPlayer", gp);
 		
-		return "static/debug.html";
+		return "debug.jsp";
 	}
 	
 	@RequestMapping(value = "/get-state", method = RequestMethod.GET, produces = "application/json")

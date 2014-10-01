@@ -90,7 +90,7 @@ public class GameController implements ServletContextAware{
 	@RequestMapping(value = "/game", method = RequestMethod.GET)
 	public String game(){
 		logger.info("in game page now");
-		return "static.html";
+		return "game.html";
 	}
 
 	@Override
