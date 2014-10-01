@@ -34,25 +34,25 @@ public class DebugGameController implements ServletContextAware{
 	public String debugPage() {
 		logger.info("debug page");
 		
-		GameEngine gameEngine = (GameEngine)servletContext.getAttribute("gameengine");
+		//GameEngine gameEngine = (GameEngine)servletContext.getAttribute("gameengine");
 		
-		GameRoom gr = new GameRoom();
+		//GameRoom gr = new GameRoom();
 
-		Deck deck = DeckService.createDeck("b");
+		//Deck deck = DeckService.createDeck("b");
 		
-		UserDetails userDetails = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		//UserDetails userDetails = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
-		GamePlayer gp = new GamePlayer(userDetails.getUsername(), deck);
+		//GamePlayer gp = new GamePlayer(userDetails.getUsername(), deck);
 		
-		gr.addPlayer(gp);
+		//gr.addPlayer(gp);
 		
-		gameEngine.addGameRoom(gr);
+		//gameEngine.addGameRoom(gr);
 		
 		//ModelAndView model = new ModelAndView();
 		//model.addObject("currentRoom", gr);
 		//model.addObject("currentPlayer", gp);
 		
-		return "debug";
+		return "static/debug.html";
 	}
 	
 	@RequestMapping(value = "/get-state", method = RequestMethod.GET, produces = "application/json")

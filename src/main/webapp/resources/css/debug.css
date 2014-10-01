@@ -1,42 +1,51 @@
-/*  HTML5 вњ° Boilerplate  */
-html,body,div,span,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,abbr,address,cite,code,del,dfn,em,img,ins,kbd,q,samp,small,strong,sub,sup,var,b,i,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary,time,mark,audio,video
-	{
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
+* {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
-/* body {
-	background: url(../img/fullhd-world-map.png);
-	background-attachment: fixed;
-	background-position: 10% 10%;
-	background-size: 600px 600px;
-	background-repeat: no-repeat;
-	background-color: lightblue;
-}  */
+body { font-family: sans-serif; }
 
-.debug_textarea{
-	margin:30;
-	padding:30;
-	width: 600px; 
-  	height: 150px;
+.playground {
+    background-image: url(../../resources/img/fullhd-world-map.png);
+    width: 920px;
+    height: 1040px;
+    background-repeat: no-repeat;
+    background-position: center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -bacground-size: cover;
+    background-size: cover;
 }
 
-/* div.image {
-   content:url(../img/fullhd-world-map.png);
-   content: 
-} */
+.card {
+	width: 150px; 
+	height: 97px; 
+	z-index: 10;
+}
 
-div.image {
-    display: block;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  background-image:url(../img/fullhd-world-map.png);	
-  background-size: 600px 600px;
-  width: 600px; 
-  height: 600px; 
-  margin: 30px; 
-}​
+.masonry {
+/*  background: #EEE; */
+  max-width: 920px;
+  top: 130px; 
+  left: 10px;
+}
+
+/* clearfix */
+.masonry:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+.masonry .item {
+  width:  150px;
+  height: 97px;
+/*  background: #D26;*/ 
+  float: left;
+}
+
+.item.hover {
+  background: #A2C;
+  border-color: white;
+}

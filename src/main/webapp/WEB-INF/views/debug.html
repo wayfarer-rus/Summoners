@@ -6,7 +6,7 @@
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
 <title>Summoners Debug View</title>
-<link rel="stylesheet" href="debug.css">
+<link rel="stylesheet" href="../../resources/css/debug.css">
 <style>
 #cards {
 	background-color: #eeeeee;
@@ -16,32 +16,13 @@
 	padding: 5px;
 	float: right;
 }
-
-#playground {
-	background-image: url(../../resources/bg/fullhd-world-map.png);
-	width: 920px;
-	height: 1040px;
-	background-repeat: no-repeat;
-	background-position: center;
-	-webkit-background-size: cover;
-	-moz-background-size: cover;
-	-bacground-size: cover;
-	background-size: cover;
-}
-
-#topoffset {
-	background-color: #5A3FF2;
-	width: 920px;
-	height: 130px;
-}
-
 </style>
-<script type="text/javascript" src="ajax.js"></script>
-<script type="text/javascript" src="helpers.js"></script>
-<script type="text/javascript" src="DragObject.js"></script>
-<script type="text/javascript" src="DropTarget.js"></script>
-<script type="text/javascript" src="dragMaster.js"></script>
-<script type="text/javascript" src="masonry.pkgd.min.js"></script>
+<script type="text/javascript" src="../../resources/js/ajax.js"></script>
+<script type="text/javascript" src="../../resources/js/helpers.js"></script>
+<script type="text/javascript" src="../../resources/js/DragObject.js"></script>
+<script type="text/javascript" src="../../resources/js/DropTarget.js"></script>
+<script type="text/javascript" src="../../resources/js/dragMaster.js"></script>
+<script type="text/javascript" src="../../resources/js/masonry.pkgd.min.js"></script>
 <script>
 	window.onload = function() {
 		function initPlayfield() {
@@ -64,8 +45,8 @@
 
 		function testImg() {
 			var img = document.createElement("img");
-			img.src = "../../resources/benders/benders.png";
-			img.style.cssText = "width: 150px; height: 97px; z-index: 10";
+			img.src = "../../resources/img/benders/benders.png";
+			img.className = "card";
 			new DragObject(img);
 			return img;
 		}
@@ -85,8 +66,8 @@
 		<div id="cards">
 			<generated> </generated>
 		</div>
-		<div id="playground">
-			<div class="masonry" style="top: 130px; left: 10px">
+		<div class="playground">
+			<div class="masonry">
 			</div>
 		</div>
 	</div>
