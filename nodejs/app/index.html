@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<title>Summoner Wars (c) Played Hat</title>
+
+		<style>
+			body {
+				height: 100%;
+				font-size: 14px;
+				line-height: 1.42857;
+				color: #333;
+
+				font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+			}
+			.container {
+				width: 870px;
+				height: 710px;
+				margin-left: auto;
+				margin-right: auto;
+				left: 0;
+				right: 0;
+				position: absolute;
+			}
+
+
+			/*MENU*/
+			.header {
+				border-bottom: 1px solid #E5E5E5;
+				margin-bottom: 30px;
+			}
+
+			.header h3 {
+				line-height: 40px;
+			}
+
+			h3 {
+				font-size: 24px;
+				font-family: inherit;
+				font-weight: 500;
+				text-decoration: none;
+			}
+
+			a {
+				color: #337AB7;
+			}
+
+			.nav-pills {
+				margin-top: 0px;
+				margin-bottom: 0px;
+			}
+
+			.nav-pills li {
+				position: relative;
+				display: block;
+				float: left;
+				list-style: outside none none;
+			}
+
+			.nav-pills li a {
+				position: relative;
+				display: block;
+				padding: 10px 15px;
+				text-decoration: none;
+				border-radius: 4px;
+			}
+			.nav-pills li a:hover, a:focus {
+				background-color: #EEE;
+
+			}
+			.nav-pills li + li {
+				margin-left: 4px;
+			}
+
+			.pull-right {
+				float: right !important;
+			}
+
+			.active  a, .nav-pills  li.active  a {
+				color: #FFF;
+				background-color: #337AB7;
+			}
+
+
+			/*SLIDES*/
+			.jumbotron {
+				padding: 78px 0;
+				/*text-align: center;*/
+				margin-left:50px;
+				margin-right:50px;
+				background-color: #EEE;
+				border-radius: 6px;
+				height: 279px;
+			}
+
+
+			/*OTHER*/
+			.position-absolute {
+				position: absolute;
+			}
+			.position-relative {
+				position: relative;
+			}
+			.visibility-hidden {
+				visibility: hidden;
+			}
+			.text-grey {
+				color: #777;
+			}
+			.text-green {
+				color: #50A850;
+			}
+			.text-blue {
+				color: #2D6AA0;
+			}
+			.text-orange {
+				color: #EC961D;
+			}
+			.text-brown {
+				color: #CC9900;
+			}
+			.text-violet {
+				color: #8A00E6;
+			}
+			.text-red {
+				color: #D9534F;
+			}
+			.text-black {
+				color: #000;
+			}
+
+			.rotate_180 {
+				transform: rotate(180deg);
+			}
+		</style>
+
+		<script>
+			function ajaxPost(url, data) {
+				var xhr = (window.ActiveXObject) ? new ActiveXObject("Microsoft.XMLHTTP")
+												 : (XMLHttpRequest && new XMLHttpRequest()) || null;
+
+				xhr.onreadystatechange = function() {
+					if (xhr.readyState == 4) {
+						try {
+							//just nothing
+							
+						}
+						catch (error) {
+							alert('Что-то пошло не так...');
+						}
+					}
+				}
+
+				xhr.open('POST', url, false);
+				//xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'text/html');
+				xhr.setRequestHeader("Content-length", data.length);
+				xhr.send(data);
+			};
+
+
+			function ajaxGet(url, callback) {
+				var xhr = (window.ActiveXObject) ? new ActiveXObject("Microsoft.XMLHTTP")
+												 : (XMLHttpRequest && new XMLHttpRequest()) || null;
+
+				xhr.onreadystatechange = function() {
+					if (xhr.readyState == 4) {
+						try {
+							callback(xhr.responseText);
+
+						}
+						catch (error) {
+							// alert('Что-то пошло не так...' + error);
+						}
+					}
+				}
+
+				xhr.open('GET', url, false);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.send();
+			};
+
+
+			var vargath = 
+			{
+				"race": {
+					"logo_src": "logo.png",
+					"event_list_src": "event_list.png",
+					"name": "Vargath",
+					"deck_size": 34 //summoner+units+events no setup_card
+				},
+				"start_setup": {
+					"src": "start_setup.png",
+					"position": [ //left-bottom 0,0
+						["warrior", 0, 3], //name, x, y
+						["brute", 	1, 1],
+						["wall",	2, 2],
+						["summoner",3, 1],
+						["rusher",	3, 3],
+						["warrior", 4, 2]
+					]
+				},
+				"deck": {
+					"summoner": 1,
+					"wall": 3,
+
+					"growden": 1,
+					"quen": 1,
+					"torodin": 1,
+
+					"muster": 3,
+					"greater_command": 2,
+					"superior_planning": 2,
+					"torodins_advance": 1,
+					"fall_back": 1,
+
+					"brute": 5,
+					"rusher": 7,
+					"warrior": 6
+				},
+				"other": {
+					"summoner": {
+						"src": "summoner_sunderved.png",
+						"name": "Sunderved",
+						"hits": 7,
+						"attack": 3
+					},
+					"wall": {
+						"src": "wall.png",
+						"name": "Wall",
+						"hits": 9
+					}
+				},
+				"common": {
+					"brute": {
+						"src": "common_brute.png",
+						"name": "Brute",
+						"hits": 3,
+						"attack": 1,
+						"cost": 2
+					},
+					"rusher": {
+						"src": "common_rusher.png",
+						"name": "Rusher",
+						"hits": 2,
+						"attack": 1,
+						"cost": 1
+					},
+					"warrior": {
+						"src": "common_warrior.png",
+						"name": "Rusher",
+						"hits": 1,
+						"attack": 1,
+						"cost": 1
+					}
+				},
+				"champion": {
+					"growden": {
+						"src": "champion_growden.png",
+						"name": "Growden",
+						"hits": 6,
+						"attack": 3,
+						"cost": 6
+					},
+					"quen": {
+						"src": "champion_quen.png",
+						"name": "Quen",
+						"hits": 4,
+						"attack": 2,
+						"cost": 5
+					},
+					"torodin": {
+						"src": "champion_torodin.png",
+						"name": "Torodin",
+						"hits": 7,
+						"attack": 2,
+						"cost": 6
+					}
+				},
+				"event": {
+					"fall_back": {
+						"src": "event_fall_back.png",
+						"name": "Fall Back"
+					},
+					"greater_command": {
+						"src": "event_greater_command.png",
+						"name": "Greater command"
+					},
+					"muster": {
+						"src": "event_muster.png",
+						"name": "Muster"
+					},
+					"superior_planning": {
+						"src": "event_superior_planning.png",
+						"name": "Superior planning"
+					},
+					"torodins_advance": {
+						"src": "event_torodins_advance.png",
+						"name": "Torodin's advance"
+					}
+				}
+			}
+
+			var benders =
+			{
+				"race": {
+					"logo_src": "logo.png",
+					"event_list_src": "event_list.png",
+					"name": "Benders",
+					"deck_size": 34 //summoner+units+events no setup_card
+				},
+				"start_setup": {
+					"src": "start_setup.png",
+					"position": [ //left-bottom 0,0
+						["controller",	0, 0], //name, x, y
+						["deceiver", 	2, 0],
+						["summoner",	3, 0],
+						["controller",	3, 1],
+						["wall",		3, 2],
+						["deceiver",	4, 1]
+					]
+				},
+				"deck": {
+					"summoner": 1,
+					"wall": 3,
+
+					"gulldune": 1,
+					"kalal": 1,
+					"sorgwen": 1,
+
+					"mind_control": 3,
+					"mimic": 3,
+					"magic_drain": 2,
+					"a_hero_is_born": 1,
+
+					"breaker": 5,
+					"controller": 6,
+					"deceiver": 7
+				},
+				"other": {
+					"summoner": {
+						"src": "summoner_tacullu.png",
+						"name": "Tacullu",
+						"hits": 5,
+						"attack": 2
+					},
+					"wall": {
+						"src": "wall.png",
+						"name": "Wall",
+						"hits": 9
+					}
+				},
+				"common": {
+					"breaker": {
+						"src": "common_breaker.png",
+						"name": "Breaker",
+						"hits": 1,
+						"attack": 1,
+						"cost": 2
+					},
+					"controller": {
+						"src": "common_controller.png",
+						"name": "Controller",
+						"hits": 1,
+						"attack": 2,
+						"cost": 2
+					},
+					"deceiver": {
+						"src": "common_deceiver.png",
+						"name": "Deceiver",
+						"hits": 1,
+						"attack": 1,
+						"cost": 1
+					}
+				},
+				"champion": {
+					"gulldune": {
+						"src": "champion_gulldune.png",
+						"name": "Gulldune",
+						"hits": 4,
+						"attack": 2,
+						"cost": 5
+					},
+					"kalal": {
+						"src": "champion_kalal.png",
+						"name": "Kalal",
+						"hits": 5,
+						"attack": 3,
+						"cost": 7
+					},
+					"sorgwen": {
+						"src": "champion_sorgwen.png",
+						"name": "Sorgwen",
+						"hits": 3,
+						"attack": 3,
+						"cost": 5
+					}
+				},
+				"event" : {
+					"mind_control": {
+						"src": "event_mind_control.png",
+						"name": "Mind Control"
+					},
+					"mimic": {
+						"src": "event_mimic.png",
+						"name": "Mimic"
+					},
+					"magic_drain": {
+						"src": "event_magic_drain.png",
+						"name": "Magic Drain"
+					},
+					"a_hero_is_born": {
+						"src": "event_a_hero_is_born.png",
+						"name": "A Hero is Born"
+					}
+				}
+			};
+			window.onload = function() {
+				var cardWIDTH = 88, cardHEIGHT = 57;
+				var sizeStyleText = "width:"+cardWIDTH+"px; height: "+cardHEIGHT+"px;";
+
+
+				//listener 
+				var sendData = document.querySelector("#sendData");
+				document.querySelector("#ajaxPost").onclick = function(e) {
+					ajaxPost('/action/move', sendData.value);
+				}
+
+				function getDeck(deckName) {
+					if (deckName == "Vargath") {
+						return vargath;
+					}
+					else {
+						return benders;
+					}
+				}
+				function getDeckFolder(deckName) {
+					if (deckName == "Vargath") {
+						return "resources/vargath/";
+					}
+					else {
+						return "resources/benders/";
+					}
+				}
+
+				function rerender(data) {
+					var table = document.querySelector("#table");
+
+					//vargath deck logo
+					// var img = document.createElement("img");
+					// img.src = "resources/vargath/"+vargath.race.logo_src;
+					// img.className = "position-absolute";
+
+					// var x = 171;
+					// var y = 675 - cardHEIGHT;
+
+					// var coordinateStyleText = "left:" +x+ "px;top: " +y+ "px;";
+					// img.style.cssText =  coordinateStyleText+sizeStyleText;
+
+					// table.appendChild(img);
+
+					//vargath start setup
+					var my_position = data[0].position;
+
+					var deck = getDeck(data[0].deckName);//vargath.start_setup;
+					var deckFolder = getDeckFolder(data[0].deckName);
+
+					for (var i = 0; i < my_position.length; i++) {
+						var unitWithPosition = my_position[i];
+						
+						var unitName = unitWithPosition[0];
+
+						var unit = deck.other[unitName];
+
+						if (deck.common[unitName] !== undefined) {
+							unit = deck.common[unitName];
+						}
+
+						var img = document.createElement("img");
+						img.src = deckFolder+unit.src;
+						img.className = "position-absolute";
+
+						var x = 163 + unitWithPosition[1] * (cardWIDTH + 3);
+						var y = 540 - unitWithPosition[2] * (cardHEIGHT + 4);
+
+						var coordinateStyleText = "left:" +x+ "px;top: " +y+ "px;";
+						img.style.cssText =  coordinateStyleText+sizeStyleText;
+
+						table.appendChild(img);
+					}
+
+
+					//benders deck logo
+					// var img = document.createElement("img");
+					// img.src = "resources/benders/"+benders.race.logo_src;
+					// img.className = "position-absolute";
+
+					// var x = 613;
+					// var y = 91 - cardHEIGHT;
+
+					// var coordinateStyleText = "left:" +x+ "px;top: " +y+ "px;";
+					// img.style.cssText =  coordinateStyleText+sizeStyleText;
+
+					// table.appendChild(img);
+
+					//benders start setup
+					var his_position = data[1].position;
+
+					deck = getDeck(data[1].deckName);//vargath.start_setup;
+					deckFolder = getDeckFolder(data[1].deckName);
+
+					for (var i = 0; i < his_position.length; i++) {
+						var unitWithPosition = his_position[i];
+						
+						var unitName = unitWithPosition[0];
+
+						var unit = deck.other[unitName];
+
+						if (deck.common[unitName] !== undefined) {
+							unit = deck.common[unitName];
+						}
+
+						var img = document.createElement("img");
+						img.src = deckFolder+unit.src;
+						img.className = "position-absolute rotate_180";
+
+						var x = 163 + (5 - unitWithPosition[1]) * (cardWIDTH + 3);
+						var y = 540 - (7 - unitWithPosition[2]) * (cardHEIGHT + 4);
+
+						var coordinateStyleText = "left:" +x+ "px;top: " +y+ "px;";
+						img.style.cssText =  coordinateStyleText+sizeStyleText;
+
+						table.appendChild(img);
+					}
+				}
+
+				var input = [
+					{"deckName": "Benders", "position": benders.start_setup.position},
+					{"deckName": "Vargath", "position": vargath.start_setup.position}
+				];
+
+				rerender(input);
+
+				function clean() {
+					var imgArray = document.getElementsByTagName("img");
+
+					for (var i = 0; i < imgArray.length; i++) {
+						if (imgArray[i].id === "") {
+							imgArray[i].parentNode.removeChild(imgArray[i]);
+						}
+					}
+				}
+
+				setInterval(
+					function() {
+						ajaxGet(
+							'/action/state',
+							 function(data) {
+                                        console.log(data);
+							 	clean();
+							 	rerender(JSON.parse(data));
+							}
+						);
+					},
+					2000
+				);
+			};
+		</script>
+	</head>
+
+	<body style="background-color: #eee;">
+		<div class="container">
+			<div id="table" class="position-relative">
+				<input id="sendData" type="text" class="position-absolute" style="left: 0px; top:300px;" />
+				<button id="ajaxPost" class="position-absolute" style="left: 30px; top:330px;">ajaxPost!</button>
+				<img id="map" src="resources/fullhd-world-map.png" class="position-absolute" style="left: 156px; top:20px; width:558px; height: 670px;"/>
+			</div>
+		</div>
+	</body>
+</html>
