@@ -423,8 +423,14 @@
 
 				//listener 
 				var sendData = document.querySelector("#sendData");
-				document.querySelector("#ajaxPost").onclick = function(e) {
+				document.querySelector("#Move").onclick = function(e) {
 					ajaxPost('/action/move', sendData.value);
+			    }
+                document.querySelector("#Attack").onclick = function(e) {
+					ajaxPost('/action/attack', sendData.value);
+			    }
+                document.querySelector("#Roll").onclick = function(e) {
+					ajaxPost('/action/roll', sendData.value);
 				}
 
 				function getDeck(deckName) {
@@ -552,14 +558,42 @@
 					}
 				}
 
+                                    function drawTocken(color, roll) {
+                                        var canvas = document.getElementById('myCanvas');
+                                        var context = canvas.getContext('2d');
+                                        var centerX = canvas.width / 2;
+                                        var centerY = canvas.height / 2;
+                                        var radius = 45;
+
+                                        context.beginPath();
+                                        context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+                                        context.fillStyle = color;
+                                        context.fill();
+                                        context.lineWidth = 5;
+                                        context.strokeStyle = '#003300';
+                                        context.stroke();
+
+                                        if (roll) {
+                                        context.font = 'italic 40pt Calibri';
+                                        context.fillStyle = 'black';
+                                        context.fillText('Roll!', 10, centerY);
+                                        }
+                                    }
+
 				setInterval(
 					function() {
 						ajaxGet(
 							'/action/state',
 							 function(data) {
                                         console.log(data);
-							 	clean();
-							 	rerender(JSON.parse(data));
+							 	        clean();
+                                        var tmpData = JSON.parse(data);
+							 	        rerender(tmpData["board"]);
+                                        if (tmpData["tocken"]) {
+                                        drawTocken('green', tmpData["roll"]);
+                                        } else {
+                                        drawTocken('red', tmpData["roll"]);
+                                        }
 							}
 						);
 					},
@@ -570,10 +604,13 @@
 	</head>
 
 	<body style="background-color: #eee;">
-		<div class="container">
+      <canvas id="myCanvas" width="100" height="100"></canvas>
+	  <div class="container">
+        <input id="sendData" type="text"/>
+		<button id="Move">Move</button>
+        <button id="Attack">Attack</button>
+        <button id="Roll">Roll</button>
 			<div id="table" class="position-relative">
-				<input id="sendData" type="text" class="position-absolute" style="left: 0px; top:300px;" />
-				<button id="ajaxPost" class="position-absolute" style="left: 30px; top:330px;">ajaxPost!</button>
 				<img id="map" src="resources/fullhd-world-map.png" class="position-absolute" style="left: 156px; top:20px; width:558px; height: 670px;"/>
 			</div>
 		</div>

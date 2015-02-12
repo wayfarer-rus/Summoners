@@ -2,7 +2,6 @@ var http = require('http');
 var fs = require('fs');
 
 var counter = 0;
-var users = {};
 var benders = {"deckName": "Benders",
                "position":[ //left-bottom 0,0
                         ["controller",	0, 0], //name, x, y
@@ -23,12 +22,19 @@ var vargath = {"deckName": "Vargath",
                         ["warrior", 4, 2]
                     ]
               };
-var state = [benders, vargath];
+var board = {};
+
+var gameState = { "tocken" : null,
+                  "roll"   : [],
+                  "rollFor": {},
+                  "players": [],
+                  "board"  : board
+                };
 
 if (typeof String.prototype.startsWith != 'function') {
-  String.prototype.startsWith = function (str){
-    return this.slice(0, str.length) == str;
-  };
+    String.prototype.startsWith = function (str){
+        return this.slice(0, str.length) == str;
+    };
 }
 
 // attach the .equals method to Array's prototype to call it on any array
@@ -60,27 +66,101 @@ Array.prototype.equals = function (array) {
 /* helper functions */
 /********************/
 function rememberUser(uuid) {
-    users[uuid] = counter++;
+    gameState["players"].push(uuid);
+
+    if (gameState["players"].length == 1) {
+        board[uuid] = vargath;
+    } else {
+        board[uuid] = benders;
+        gameState["tocken"] = gameState["players"][0];
+    }
 }
 
 function newUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
 }
 
+function inDictValues(dict, value) {
+    for (key in Object.keys(dict)) {
+        if (dict[key] == value) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /*****************************/
 /* main processing functions */
 /*****************************/
 function processActionPost(req, data) {
-    if (req.url.startsWith('/action/move')) {
-        state.forEach(function(player) {
+    if (gameState["tocken"] != req.headers["cookie"]) {
+        return;
+    }
+
+    if (req.url.startsWith('/action/move') && data.length == 2) {
+        Object.keys(gameState["board"]).forEach(function(key) {
+            var player = gameState["board"][key];
             player['position'].forEach(function(card, i, cards) {
                 console.log("Checking that '" + JSON.stringify(data[0]) + "' == '" + JSON.stringify(card) + "':");
-                if (card.equals(data[0])) {
+                if (key == req.headers["cookie"] && card.equals(data[0])) {
                     console.log("equal. Returning " + JSON.stringify(data[1]));
                     cards[i] = data[1];
                 }
             });
         });
+    }
+    else if (req.url.startsWith('/action/attack') && data.length == 2) {
+        var who = null;
+        for (var i in (gameState["board"][req.headers["cookie"]]["position"])) {
+            var card = gameState["board"][req.headers["cookie"]]["position"][i];
+
+            if (card.equals(data[0])) {
+                who = card;
+                break;
+            }
+        }
+
+        var whom = null;
+        for (var key in gameState["board"]) {
+            var player = gameState["board"][key];
+            console.log(JSON.stringify(player));
+            for (var i in player["position"]) {
+                var card = player["position"][i];
+                console.log(JSON.stringify(card));
+                if (data[1].equals(card)) {
+                    whom = card;
+                }
+            }
+        }
+
+        if (who != null && whom != null && !who.equals(whom)) {
+            console.log(JSON.stringify(who) + " attacks " + JSON.stringify(whom));
+            gameState["roll"].push(req.headers["cookie"]);
+            gameState["rollFor"][req.headers["cookie"]] = ["attack", who, whom];
+        }
+    }
+    else if (req.url.startsWith('/action/roll')) {
+        var rollFor = gameState["rollFor"][req.headers["cookie"]];
+        var index = gameState["roll"].indexOf(req.headers["cookie"]);
+        if (rollFor && index !== -1) {
+            if (rollFor[0] === "attack") {
+                for (var key in gameState["board"]) {
+                    var player = gameState["board"][key];
+
+                    for (var i in player["position"]) {
+                        var card = player["position"][i];
+
+                        if (rollFor[2].equals(card)) {
+                            player["position"].splice(i, 1);
+                        }
+                    }
+                }
+            }
+
+            gameState["roll"].splice(index, 1);
+            delete gameState["rollFor"][req.headers["cookie"]];
+        }
     }
 }
 
@@ -109,18 +189,31 @@ function processPost(request) {
 
 function processActionGet(req, res) {
     if (req.url.startsWith('/action/state')) {
-        console.log(JSON.stringify(users));
-        console.log(JSON.stringify(state));
+        console.log(JSON.stringify(gameState));
         console.log("###########");
 
-        var simplestate = [];
-        if (users[req.headers["cookie"]]%2 == 0) {
-            simplestate = state;
+        var simpleBoard = [];
+        simpleBoard.push(gameState["board"][req.headers["cookie"]]);
+        Object.keys(gameState["board"]).forEach(function(key){
+            if (key != req.headers["cookie"]) {
+                simpleBoard.push(gameState["board"][key]);
+            }
+        });
+
+        var simplestate = {};
+        simplestate["board"] = simpleBoard;
+
+        if (req.headers["cookie"] == gameState["tocken"]) {
+            simplestate["tocken"] = true;
         } else {
-            simplestate.push(state[1]);
-            simplestate.push(state[0]);
+            simplestate["tocken"] = false;
         }
 
+        if (gameState["roll"].indexOf(req.headers["cookie"]) !== -1) {
+            simplestate["roll"] = true;
+        } else {
+            simplestate["roll"] = false;
+        }
         res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         res.setHeader("Pragma", "no-cache");
         res.setHeader("Expires", "0");
@@ -137,13 +230,14 @@ function processGet(req, res) {
         var newUser;
         if (!req.headers["cookie"]) {
             newUser = newUUID();
-            rememberUser(newUser);
             res.setHeader("Set-Cookie", newUser);
         } else {
             newUser = req.headers["cookie"];
         }
 
-        if (!(newUser in users)) {
+        if (gameState["players"].length < 2 &&
+            gameState["players"].indexOf(newUser) == -1)
+        {
             rememberUser(newUser);
         }
         // return file for each other request
