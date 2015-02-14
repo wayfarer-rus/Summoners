@@ -1,0 +1,127 @@
+body {
+	height: 100%;
+	font-size: 14px;
+	line-height: 1.42857;
+	color: #333;
+
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.container {
+	width: 870px;
+	height: 710px;
+	margin-left: auto;
+	margin-right: auto;
+	left: 0;
+	right: 0;
+	position: absolute;
+}
+
+
+/*MENU*/
+.header {
+	border-bottom: 1px solid #E5E5E5;
+	margin-bottom: 30px;
+}
+
+.header h3 {
+	line-height: 40px;
+}
+
+h3 {
+	font-size: 24px;
+	font-family: inherit;
+	font-weight: 500;
+	text-decoration: none;
+}
+
+a {
+	color: #337AB7;
+}
+
+.nav-pills {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+.nav-pills li {
+	position: relative;
+	display: block;
+	float: left;
+	list-style: outside none none;
+}
+
+.nav-pills li a {
+	position: relative;
+	display: block;
+	padding: 10px 15px;
+	text-decoration: none;
+	border-radius: 4px;
+}
+.nav-pills li a:hover, a:focus {
+				           background-color: #EEE;
+
+			           }
+.nav-pills li + li {
+	margin-left: 4px;
+}
+
+.pull-right {
+	float: right !important;
+}
+
+.active  a, .nav-pills  li.active  a {
+	color: #FFF;
+	background-color: #337AB7;
+}
+
+
+/*SLIDES*/
+.jumbotron {
+	padding: 78px 0;
+	/*text-align: center;*/
+	margin-left:50px;
+	margin-right:50px;
+	background-color: #EEE;
+	border-radius: 6px;
+	height: 279px;
+}
+
+
+/*OTHER*/
+.position-absolute {
+	position: absolute;
+}
+.position-relative {
+	position: relative;
+}
+.visibility-hidden {
+	visibility: hidden;
+}
+.text-grey {
+	color: #777;
+}
+.text-green {
+	color: #50A850;
+}
+.text-blue {
+	color: #2D6AA0;
+}
+.text-orange {
+	color: #EC961D;
+}
+.text-brown {
+	color: #CC9900;
+}
+.text-violet {
+	color: #8A00E6;
+}
+.text-red {
+	color: #D9534F;
+}
+.text-black {
+	color: #000;
+}
+
+.rotate_180 {
+	transform: rotate(180deg);
+}

@@ -3,18 +3,7 @@
 		"logo_src": "logo.png",
 		"event_list_src": "event_list.png",
 		"name": "Vargath",
-		"deck_size": 34 //summoner+units+events no setup_card
-	},
-	"start_setup": {
-		"src": "start_setup.png",
-		"position": [ //left-bottom 0,0
-			["warrior", 0, 3], //name, x, y
-			["brute", 	1, 1],
-			["wall",	2, 2],
-			["summoner",3, 1],
-			["rusher",	3, 3],
-			["warrior", 4, 2]
-		]
+		"deck_size": 34
 	},
 	"deck": {
 		"summoner": 1,
@@ -64,7 +53,7 @@
 		},
 		"warrior": {
 			"src": "common_warrior.png",
-			"name": "Rusher",
+			"name": "Warrior",
 			"hits": 1,
 			"attack": 1,
 			"cost": 1
@@ -114,5 +103,16 @@
 			"src": "event_torodins_advance.png",
 			"name": "Torodin's advance"
 		}
+	},
+    "start_setup": {
+		"src": "start_setup.png",
+		"position": [
+			["warrior", [0, 3]],
+			["brute", 	[1, 1]],
+			["wall",	[2, 2]],
+			["summoner",[3, 1]],
+			["rusher",	[3, 3]],
+			["warrior", [4, 2]]
+		]
 	}
 }

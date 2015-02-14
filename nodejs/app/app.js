@@ -1,34 +1,19 @@
 var http = require('http');
 var fs = require('fs');
 
-var counter = 0;
-var benders = {"deckName": "Benders",
-               "position":[ //left-bottom 0,0
-                        ["controller",	0, 0], //name, x, y
-                        ["deceiver",    2, 0],
-                        ["summoner",	3, 0],
-                        ["controller",	3, 1],
-                        ["wall",		3, 2],
-                        ["deceiver",	4, 1]
-                    ]
-              };
-var vargath = {"deckName": "Vargath",
-              "position":[ //left-bottom 0,0
-                        ["warrior", 0, 3], //name, x, y
-                        ["brute",   1, 1],
-                        ["wall",	2, 2],
-                        ["summoner",3, 1],
-                        ["rusher",	3, 3],
-                        ["warrior", 4, 2]
-                    ]
-              };
 var board = {};
-
+var phases = { 0: "pullCarsd",
+               1: "eventPhase",
+               2: "movementPhase",
+               3: "attackPhase",
+               4: "buildMagic"
+             };
 var gameState = { "tocken" : null,
                   "roll"   : [],
                   "rollFor": {},
                   "players": [],
-                  "board"  : board
+                  "board"  : board,
+                  "phase"  : 2
                 };
 
 if (typeof String.prototype.startsWith != 'function') {
@@ -65,15 +50,50 @@ Array.prototype.equals = function (array) {
 /********************/
 /* helper functions */
 /********************/
+function loadDeck(name) {
+    var deck = {};
+    deck["deckName"] = name;
+    deck["position"] = {};
+    deck["resourceMap"] =JSON.parse(fs.readFileSync("./resources/" + name.toLowerCase() + "/resource_map.json"));
+
+    for (var i in deck["resourceMap"]["start_setup"]["position"]) {
+        console.log("iterating over " + JSON.stringify(elem));
+        var elem = deck["resourceMap"]["start_setup"]["position"][i];
+        var cardPos =  elem[1];
+        var cardInfo = deck["resourceMap"]["common"][elem[0]];
+        console.log("card in common " + JSON.stringify(cardInfo));
+
+        if (!cardInfo) {
+            cardInfo = deck["resourceMap"]["other"][elem[0]];
+            console.log("card in other " + JSON.stringify(cardInfo));
+        }
+
+        if (cardInfo) {
+            // deep cloning card info
+            cardInfo = JSON.parse(JSON.stringify(cardInfo));
+            deck["position"][cardPos] = cardInfo;
+        }
+    }
+    return deck;
+}
+
 function rememberUser(uuid) {
     gameState["players"].push(uuid);
 
     if (gameState["players"].length == 1) {
-        board[uuid] = vargath;
+        board[uuid] = loadDeck("Vargath");
     } else {
-        board[uuid] = benders;
+        board[uuid] = loadDeck("Benders");
         gameState["tocken"] = gameState["players"][0];
     }
+}
+
+function nextPlayer(uuid) {
+    if (gameState["players"].length > 0 && gameState["players"].indexOf(uuid) !== -1) {
+        return gameState["players"][((gameState["players"].indexOf(uuid)+1)%gameState["players"].length)];
+    }
+
+    return null;
 }
 
 function newUUID() {
@@ -94,42 +114,45 @@ function inDictValues(dict, value) {
 /* main processing functions */
 /*****************************/
 function processActionPost(req, data) {
-    if (gameState["tocken"] != req.headers["cookie"]) {
+    if (gameState["tocken"] === null || gameState["tocken"] !== req.headers["cookie"]) {
         return;
     }
 
     if (req.url.startsWith('/action/move') && data.length == 2) {
         Object.keys(gameState["board"]).forEach(function(key) {
-            var player = gameState["board"][key];
-            player['position'].forEach(function(card, i, cards) {
-                console.log("Checking that '" + JSON.stringify(data[0]) + "' == '" + JSON.stringify(card) + "':");
-                if (key == req.headers["cookie"] && card.equals(data[0])) {
+            var deck = gameState["board"][key];
+            for (var posStr in deck['position']) {
+                var pos = posStr.split(',');
+                var cardInfo = deck['position'][posStr];
+                console.log("Checking that '" + JSON.stringify(data[0]) + "' == '" + JSON.stringify(pos) + "':");
+                if (key == req.headers["cookie"] && pos.equals(data[0])) {
                     console.log("equal. Returning " + JSON.stringify(data[1]));
-                    cards[i] = data[1];
+                    var cardInfo = deck['position'][data[1]] = cardInfo;
+                    delete deck['position'][posStr];
                 }
-            });
+            }
         });
     }
     else if (req.url.startsWith('/action/attack') && data.length == 2) {
         var who = null;
-        for (var i in (gameState["board"][req.headers["cookie"]]["position"])) {
-            var card = gameState["board"][req.headers["cookie"]]["position"][i];
+        for (var posStr in (gameState["board"][req.headers["cookie"]]["position"])) {
+            var pos = posStr.split(',');
 
-            if (card.equals(data[0])) {
-                who = card;
+            if (pos.equals(data[0])) {
+                who = pos;
                 break;
             }
         }
 
         var whom = null;
         for (var key in gameState["board"]) {
-            var player = gameState["board"][key];
-            console.log(JSON.stringify(player));
-            for (var i in player["position"]) {
-                var card = player["position"][i];
-                console.log(JSON.stringify(card));
-                if (data[1].equals(card)) {
-                    whom = card;
+            var deck = gameState["board"][key];
+            console.log(JSON.stringify(deck));
+            for (var posStr in deck["position"]) {
+                var pos = posStr.split(',');
+                console.log(JSON.stringify(pos));
+                if (data[1].equals(pos)) {
+                    whom = pos;
                 }
             }
         }
@@ -146,13 +169,21 @@ function processActionPost(req, data) {
         if (rollFor && index !== -1) {
             if (rollFor[0] === "attack") {
                 for (var key in gameState["board"]) {
-                    var player = gameState["board"][key];
+                    var deck = gameState["board"][key];
 
-                    for (var i in player["position"]) {
-                        var card = player["position"][i];
+                    for (var posStr in deck["position"]) {
+                        var pos = posStr.split(',');
 
-                        if (rollFor[2].equals(card)) {
-                            player["position"].splice(i, 1);
+                        if (rollFor[2].equals(pos)) {
+                            if (deck["position"][posStr]["dmg"]) {
+                                deck["position"][posStr]["dmg"] += 1;
+                            } else {
+                                deck["position"][posStr]["dmg"] = 1;
+                            }
+
+                            if (deck["position"][posStr]["dmg"] >= deck["position"][posStr]["hits"]) {
+                                delete deck["position"][posStr];
+                            }
                         }
                     }
                 }
@@ -160,6 +191,15 @@ function processActionPost(req, data) {
 
             gameState["roll"].splice(index, 1);
             delete gameState["rollFor"][req.headers["cookie"]];
+        }
+    }
+    else if (req.url.startsWith('/action/nextphase')) {
+        if (gameState["phase"] === 4) {
+            // next turn
+            gameState["phase"] = 0;
+            gameState["tocken"] = nextPlayer(req.headers["cookie"]);
+        } else {
+            gameState["phase"] += 1;
         }
     }
 }
@@ -178,10 +218,16 @@ function processPost(request) {
         // data received. continue processing
         if (request.url.startsWith('/action')) {
             // print incoming json
-            var data = JSON.parse(body.toString());
-            data.forEach(function(elem) {
-                console.log(elem);
-            });
+            var data = null;
+
+            if (body.length > 0) {
+                data = JSON.parse(body.toString());
+                data.forEach(function(elem) {
+                    console.log(elem);
+                });
+
+            }
+
             processActionPost(request, data);
         }
     });
@@ -202,6 +248,7 @@ function processActionGet(req, res) {
 
         var simplestate = {};
         simplestate["board"] = simpleBoard;
+        simplestate["phase"] = phases[gameState["phase"]];
 
         if (req.headers["cookie"] == gameState["tocken"]) {
             simplestate["tocken"] = true;
@@ -219,6 +266,9 @@ function processActionGet(req, res) {
         res.setHeader("Expires", "0");
         res.writeHead(200);
         res.end(JSON.stringify(simplestate));
+    }
+    else {
+        res.end();
     }
 }
 

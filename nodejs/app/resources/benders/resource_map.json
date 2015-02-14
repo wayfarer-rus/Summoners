@@ -1,20 +1,9 @@
 {
 	"race": {
-		"logo_src": "logo.jpg",
-		"event_list_src": "event_list.jpg",
+		"logo_src": "logo.png",
+		"event_list_src": "event_list.png",
 		"name": "Benders",
-		"deck_size": 34 //summoner+units+events no setup_card
-	},
-	"start_setup": {
-		"src": "start_setup.jpg",
-		"position": [ //left-bottom 0,0
-			["controller",	0, 0], //name, x, y
-			["deceiver", 	2, 0],
-			["summoner",	3, 0],
-			["controller",	3, 1],
-			["wall",		3, 2],
-			["deceiver",	4, 1]
-		]
+		"deck_size": 34
 	},
 	"deck": {
 		"summoner": 1,
@@ -35,34 +24,34 @@
 	},
 	"other": {
 		"summoner": {
-			"src": "summoner_tacullu.jpg",
+			"src": "summoner_tacullu.png",
 			"name": "Tacullu",
 			"hits": 5,
 			"attack": 2
 		},
 		"wall": {
-			"src": "wall.jpg",
+			"src": "wall.png",
 			"name": "Wall",
 			"hits": 9
 		}
 	},
 	"common": {
 		"breaker": {
-			"src": "common_breaker.jpg",
+			"src": "common_breaker.png",
 			"name": "Breaker",
 			"hits": 1,
 			"attack": 1,
 			"cost": 2
 		},
 		"controller": {
-			"src": "common_controller.jpg",
+			"src": "common_controller.png",
 			"name": "Controller",
 			"hits": 1,
 			"attack": 2,
 			"cost": 2
 		},
 		"deceiver": {
-			"src": "common_deceiver.jpg",
+			"src": "common_deceiver.png",
 			"name": "Deceiver",
 			"hits": 1,
 			"attack": 1,
@@ -71,21 +60,21 @@
 	},
 	"champion": {
 		"gulldune": {
-			"src": "champion_gulldune.jpg",
+			"src": "champion_gulldune.png",
 			"name": "Gulldune",
 			"hits": 4,
 			"attack": 2,
 			"cost": 5
 		},
 		"kalal": {
-			"src": "champion_kalal.jpg",
+			"src": "champion_kalal.png",
 			"name": "Kalal",
 			"hits": 5,
 			"attack": 3,
 			"cost": 7
 		},
 		"sorgwen": {
-			"src": "champion_sorgwen.jpg",
+			"src": "champion_sorgwen.png",
 			"name": "Sorgwen",
 			"hits": 3,
 			"attack": 3,
@@ -94,20 +83,31 @@
 	},
 	"event" : {
 		"mind_control": {
-			"src": "event_mind_control.jpg",
+			"src": "event_mind_control.png",
 			"name": "Mind Control"
 		},
 		"mimic": {
-			"src": "event_mimic.jpg",
+			"src": "event_mimic.png",
 			"name": "Mimic"
 		},
 		"magic_drain": {
-			"src": "event_magic_drain.jpg",
+			"src": "event_magic_drain.png",
 			"name": "Magic Drain"
 		},
 		"a_hero_is_born": {
-			"src": "event_a_hero_is_born.jpg",
+			"src": "event_a_hero_is_born.png",
 			"name": "A Hero is Born"
 		}
+	},
+    "start_setup": {
+		"src": "start_setup.png",
+		"position": [
+			["controller",	[0, 0]],
+			["deceiver", 	[2, 0]],
+			["summoner",	[3, 0]],
+			["controller",	[3, 1]],
+			["wall",		[3, 2]],
+			["deceiver",	[4, 1]]
+		]
 	}
 }
