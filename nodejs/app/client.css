@@ -125,3 +125,7 @@ a {
 .rotate_180 {
 	transform: rotate(180deg);
 }
+
+.rotate_90 {
+	transform: rotate(90deg);
+}

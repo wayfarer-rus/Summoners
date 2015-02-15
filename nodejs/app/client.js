@@ -16,6 +16,12 @@ window.onload = function() {
     document.querySelector("#NextPhase").onclick = function(e) {
         ajaxPost('/action/nextphase', '');
     }
+    document.querySelector("#Draw").onclick = function(e) {
+        ajaxPost('/action/draw', '');
+    }
+    document.querySelector("#Summon").onclick = function(e) {
+        ajaxPost('/action/summon', sendData.value);
+    }
 
     function getDeckFolder(deckName) {
         if (deckName == "Vargath") {
@@ -81,6 +87,8 @@ window.onload = function() {
     }
 
     function drawCardsOnBoard(positions, deckFolder, deck, rotate) {
+        var table = document.querySelector("#table");
+
         for (var key in positions) {
             var pos = key.split(',');
             var unit = positions[key];
@@ -115,27 +123,43 @@ window.onload = function() {
         }
     }
 
-    function rerender(data) {
-        if (!data || typeof data === 'undefined') return;
-
+    function drawHand(hand, deckFolder) {
+        if (!hand || hand.length === 0) return;
         var table = document.querySelector("#table");
-        //vargath deck logo
-        // var img = document.createElement("img");
-        // img.src = "resources/vargath/"+vargath.race.logo_src;
-        // img.className = "position-absolute";
 
-        // var x = 171;
-        // var y = 675 - cardHEIGHT;
-
-        // var coordinateStyleText = "left:" +x+ "px;top: " +y+ "px;";
-        // img.style.cssText =  coordinateStyleText+sizeStyleText;
-
-        // table.appendChild(img);
-
-        //vargath start setup
-        if (data[0]) {
-            redrawDeck(data[0], getDeckFolder(data[0].deckName));
+        for (var i in hand) {
+            var img = document.createElement("img");
+            img.src = deckFolder + hand[i].src;
+            img.className = "position-absolute rotate_90";
+            var x = 200 + i*(cardHEIGHT+10);
+            var y = 700;
+            var coordinateStyleText = "left:" +x+ "px;top: " +y+ "px;";
+            img.style.cssText =  coordinateStyleText+sizeStyleText;
+            table.appendChild(img);
         }
+    }
+
+    function rerender(data) {
+        if (!data["board"] || typeof data["board"] === 'undefined') return;
+
+        if (data["board"][0]) {
+            var table = document.querySelector("#table");
+            var deckFolder = getDeckFolder(data["board"][0].deckName);
+            //draw our deck logo
+            var img = document.createElement("img");
+            img.src = deckFolder + data["board"][0]["resourceMap"].race.logo_src;
+            img.className = "position-absolute";
+            var x = 171;
+            var y = 675 - cardHEIGHT;
+            var coordinateStyleText = "left:" +x+ "px;top: " +y+ "px;";
+            img.style.cssText =  coordinateStyleText+sizeStyleText;
+            table.appendChild(img);
+            // draw our side of the board
+            redrawDeck(data["board"][0], deckFolder);
+            //draw our hand
+            drawHand(data["hand"], deckFolder);
+        }
+
         //benders deck logo
         // var img = document.createElement("img");
         // img.src = "resources/benders/"+benders.race.logo_src;
@@ -149,20 +173,24 @@ window.onload = function() {
 
         // table.appendChild(img);
 
-        //benders start setup
-        if (data[1]) {
-            redrawDeck(data[1], getDeckFolder(data[1].deckName), true);
+        // draw opponent's side of the board
+        if (data["board"][1]) {
+            redrawDeck(data["board"][1], getDeckFolder(data["board"][1].deckName), true);
         }
     }
 
     function clean() {
-        var imgArray = document.getElementsByTagName("canvas");
-
-        for (var i = 0; i < imgArray.length; i++) {
-            if (imgArray[i].id === "") {
-                imgArray[i].parentNode.removeChild(imgArray[i]);
+        var imageIter = function (nodes) {
+            for (var i = 0; i < nodes.length; i++) {
+                var item = nodes[i];
+                if (item.id === "") {
+                    nodes[i].parentNode.removeChild(item);
+                }
             }
-        }
+        };
+
+        imageIter(document.getElementsByTagName("img"));
+        imageIter(document.getElementsByTagName("canvas"))
     }
 
     function drawTocken(color, roll, phase) {
@@ -172,6 +200,8 @@ window.onload = function() {
         var centerY = canvas.height / 2;
         var radius = 45;
 
+        context.fillStyle = 'white';
+        context.fillRect(0,0,canvas.width,canvas.height);
         context.beginPath();
         context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
         context.fillStyle = color;
@@ -198,7 +228,7 @@ window.onload = function() {
 
                     clean();
                     console.log(data);
-                    rerender(tmpData["board"]);
+                    rerender(tmpData);
 
                     if (tmpData["tocken"]) {
                         drawTocken('green', tmpData["roll"], tmpData["phase"]);

@@ -1,6 +1,6 @@
 {
 	"race": {
-		"logo_src": "logo.png",
+		"logo_src": "vargath_deck.png",
 		"event_list_src": "event_list.png",
 		"name": "Vargath",
 		"deck_size": 34
@@ -100,7 +100,7 @@
 			"name": "Superior planning"
 		},
 		"torodins_advance": {
-			"src": "event_torodins_advance.png",
+			"src": "event_torodin's_advance.png",
 			"name": "Torodin's advance"
 		}
 	},

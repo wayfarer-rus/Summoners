@@ -1,6 +1,6 @@
 {
 	"race": {
-		"logo_src": "logo.png",
+		"logo_src": "benders.png",
 		"event_list_src": "event_list.png",
 		"name": "Benders",
 		"deck_size": 34
@@ -60,7 +60,7 @@
 	},
 	"champion": {
 		"gulldune": {
-			"src": "champion_gulldune.png",
+			"src": "benders_champion_3.png",
 			"name": "Gulldune",
 			"hits": 4,
 			"attack": 2,
@@ -74,7 +74,7 @@
 			"cost": 7
 		},
 		"sorgwen": {
-			"src": "champion_sorgwen.png",
+			"src": "benders_champion_2.png",
 			"name": "Sorgwen",
 			"hits": 3,
 			"attack": 3,
@@ -83,19 +83,19 @@
 	},
 	"event" : {
 		"mind_control": {
-			"src": "event_mind_control.png",
+			"src": "benders_event_2.png",
 			"name": "Mind Control"
 		},
 		"mimic": {
-			"src": "event_mimic.png",
+			"src": "benders_event_1.png",
 			"name": "Mimic"
 		},
 		"magic_drain": {
-			"src": "event_magic_drain.png",
+			"src": "benders_event_3.png",
 			"name": "Magic Drain"
 		},
 		"a_hero_is_born": {
-			"src": "event_a_hero_is_born.png",
+			"src": "benders_event_4.png",
 			"name": "A Hero is Born"
 		}
 	},

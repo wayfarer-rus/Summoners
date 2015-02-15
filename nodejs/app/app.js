@@ -1,19 +1,26 @@
 var http = require('http');
 var fs = require('fs');
+// custom imports
+var actions = require('./actions.js');
 
 var board = {};
-var phases = { 0: "pullCarsd",
-               1: "eventPhase",
-               2: "movementPhase",
-               3: "attackPhase",
-               4: "buildMagic"
+var hands = {};
+var phases = { 0: "Draw",
+               1: "Summon",
+               2: "Play Event Cards",
+               3: "Movement",
+               4: "Attack",
+               5: "Build Magic"
              };
-var gameState = { "tocken" : null,
-                  "roll"   : [],
-                  "rollFor": {},
-                  "players": [],
-                  "board"  : board,
-                  "phase"  : 2
+var gameState = { "tocken"     : null,
+                  "phasesList" : phases,
+                  "roll"       : [],
+                  "rollFor"    : {},
+                  "players"    : [],
+                  "board"      : board,
+                  "hands"      : hands,
+                  "phase"      : 0,
+                  "turn"       : 0
                 };
 
 if (typeof String.prototype.startsWith != 'function') {
@@ -23,6 +30,59 @@ if (typeof String.prototype.startsWith != 'function') {
 }
 
 // attach the .equals method to Array's prototype to call it on any array
+Object.prototype.equals = function(object2) {
+    //For the first loop, we only check for types
+    for (propName in this) {
+        //Check for inherited methods and properties - like .equals itself
+        //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty
+        //Return false if the return value is different
+        if (this.hasOwnProperty(propName) != object2.hasOwnProperty(propName)) {
+            return false;
+        }
+        //Check instance type
+        else if (typeof this[propName] != typeof object2[propName]) {
+            //Different types => not equal
+            return false;
+        }
+    }
+    //Now a deeper check using other objects property names
+    for(propName in object2) {
+        //We must check instances anyway, there may be a property that only exists in object2
+            //I wonder, if remembering the checked values from the first loop would be faster or not 
+        if (this.hasOwnProperty(propName) != object2.hasOwnProperty(propName)) {
+            return false;
+        }
+        else if (typeof this[propName] != typeof object2[propName]) {
+            return false;
+        }
+        //If the property is inherited, do not check any more (it must be equa if both objects inherit it)
+        if(!this.hasOwnProperty(propName))
+          continue;
+
+        //Now the detail check and recursion
+
+        //This returns the script back to the array comparing
+        /**REQUIRES Array.equals**/
+        if (this[propName] instanceof Array && object2[propName] instanceof Array) {
+                   // recurse into the nested arrays
+           if (!this[propName].equals(object2[propName]))
+                        return false;
+        }
+        else if (this[propName] instanceof Object && object2[propName] instanceof Object) {
+                   // recurse into another objects
+                   //console.log("Recursing to compare ", this[propName],"with",object2[propName], " both named \""+propName+"\"");
+           if (!this[propName].equals(object2[propName]))
+                        return false;
+        }
+        //Normal value comparison for strings and numbers
+        else if(this[propName] != object2[propName]) {
+           return false;
+        }
+    }
+    //If everything passed, let's say YES
+    return true;
+}
+
 Array.prototype.equals = function (array) {
     // if the other array is a falsy value, return
     if (!array)
@@ -39,8 +99,14 @@ Array.prototype.equals = function (array) {
             if (!this[i].equals(array[i]))
                 return false;
         }
+        /**REQUIRES OBJECT COMPARE**/
+        else if (this[i] instanceof Object && array[i] instanceof Object) {
+        // recurse into another objects
+        //console.log("Recursing to compare ", this[propName],"with",object2[propName], " both named \""+propName+"\"");
+        if (!this[i].equals(array[i]))
+            return false;
+        }
         else if (this[i] != array[i]) {
-            // Warning - two different object instances will never be equal: {x:20} != {x:20}
             return false;
         }
     }
@@ -50,11 +116,107 @@ Array.prototype.equals = function (array) {
 /********************/
 /* helper functions */
 /********************/
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex ;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
+function buildDeck(deck) {
+    var result = [];
+    var resourceMap = deck["resourceMap"];
+    var startingSetup = deck["position"];
+    var deckContent = resourceMap["deck"];
+
+    for (var cardName in deckContent) {
+        if (cardName == "equals") continue;
+        var amount = deckContent[cardName];
+        console.log("buidDeck(): " + cardName + " " + amount);
+
+        for (var i = 0; i < amount; ++i) {
+            var logged = false;
+            var cardPtr = resourceMap["other"][cardName];
+
+            if (!cardPtr) {
+                cardPtr = resourceMap["common"][cardName];
+            } else {
+                console.log("buidDeck(): card found in 'other' list: " + JSON.stringify(cardPtr));
+                logged = true;
+            }
+
+            if (!cardPtr) {
+                cardPtr = resourceMap["champion"][cardName];
+            } else if (!logged) {
+                console.log("buidDeck(): card found in 'common' list: " + JSON.stringify(cardPtr));
+                logged = true;
+            }
+
+            if (!cardPtr) {
+                cardPtr = resourceMap["event"][cardName];
+            } else if (!logged) {
+                console.log("buidDeck(): card found in 'common' list: " + JSON.stringify(cardPtr));
+                logged = true;
+            }
+
+            if (cardPtr) {
+                 if (!logged) console.log("buidDeck(): card found in 'event' list: " + JSON.stringify(cardPtr));
+                // deep copy card
+                var card = JSON.parse(JSON.stringify(cardPtr));
+                result.push(card);
+            } else if (!logged) {
+                console.log("buidDeck(): card not found : " + cardName + " at " + i + " iteration");
+            }
+        }
+    }
+
+    // remove cards from deck if they are in startingSetup
+    var cardsToDelete = [];
+
+    for (var key in startingSetup) {
+        var card = startingSetup[key];
+
+        for (var i in result) {
+            if (card.equals(result[i]) && cardsToDelete.indexOf(i) === -1) {
+                cardsToDelete.push(i);
+                break;
+            }
+        }
+    }
+
+    for (var i in cardsToDelete) {
+        result.splice(cardsToDelete[i] - i, 1);
+    }
+    console.log(JSON.stringify(cardsToDelete));
+    console.log("########################################");
+    console.log("########################################");
+    result.forEach(function (card) {
+        console.log(JSON.stringify(card));
+        console.log("########################################");
+    });
+    console.log("########################################");
+    console.log("########################################");
+    // tripple shuffle cards and return
+    return shuffle(shuffle(shuffle(result)));
+}
+
 function loadDeck(name) {
     var deck = {};
     deck["deckName"] = name;
-    deck["position"] = {};
-    deck["resourceMap"] =JSON.parse(fs.readFileSync("./resources/" + name.toLowerCase() + "/resource_map.json"));
+    deck["position"] = {}; // startup position
+    deck["resourceMap"] = JSON.parse(fs.readFileSync("./resources/" + name.toLowerCase() + "/resource_map.json"));
 
     for (var i in deck["resourceMap"]["start_setup"]["position"]) {
         console.log("iterating over " + JSON.stringify(elem));
@@ -74,6 +236,8 @@ function loadDeck(name) {
             deck["position"][cardPos] = cardInfo;
         }
     }
+
+    deck["drawCards"] = buildDeck(deck);
     return deck;
 }
 
@@ -82,18 +246,13 @@ function rememberUser(uuid) {
 
     if (gameState["players"].length == 1) {
         board[uuid] = loadDeck("Vargath");
+        hands[uuid] = []; // cards on hand
     } else {
         board[uuid] = loadDeck("Benders");
+        hands[uuid] = [];
         gameState["tocken"] = gameState["players"][0];
+        gameState["turn"] += 1;
     }
-}
-
-function nextPlayer(uuid) {
-    if (gameState["players"].length > 0 && gameState["players"].indexOf(uuid) !== -1) {
-        return gameState["players"][((gameState["players"].indexOf(uuid)+1)%gameState["players"].length)];
-    }
-
-    return null;
 }
 
 function newUUID() {
@@ -112,95 +271,29 @@ function inDictValues(dict, value) {
 
 /*****************************/
 /* main processing functions */
-/*****************************/
+/*****************************/ 
 function processActionPost(req, data) {
     if (gameState["tocken"] === null || gameState["tocken"] !== req.headers["cookie"]) {
         return;
     }
 
-    if (req.url.startsWith('/action/move') && data.length == 2) {
-        Object.keys(gameState["board"]).forEach(function(key) {
-            var deck = gameState["board"][key];
-            for (var posStr in deck['position']) {
-                var pos = posStr.split(',');
-                var cardInfo = deck['position'][posStr];
-                console.log("Checking that '" + JSON.stringify(data[0]) + "' == '" + JSON.stringify(pos) + "':");
-                if (key == req.headers["cookie"] && pos.equals(data[0])) {
-                    console.log("equal. Returning " + JSON.stringify(data[1]));
-                    var cardInfo = deck['position'][data[1]] = cardInfo;
-                    delete deck['position'][posStr];
-                }
-            }
-        });
+    if (req.url.startsWith('/action/move')) {
+        actions.move(gameState, req.headers["cookie"], data);
     }
-    else if (req.url.startsWith('/action/attack') && data.length == 2) {
-        var who = null;
-        for (var posStr in (gameState["board"][req.headers["cookie"]]["position"])) {
-            var pos = posStr.split(',');
-
-            if (pos.equals(data[0])) {
-                who = pos;
-                break;
-            }
-        }
-
-        var whom = null;
-        for (var key in gameState["board"]) {
-            var deck = gameState["board"][key];
-            console.log(JSON.stringify(deck));
-            for (var posStr in deck["position"]) {
-                var pos = posStr.split(',');
-                console.log(JSON.stringify(pos));
-                if (data[1].equals(pos)) {
-                    whom = pos;
-                }
-            }
-        }
-
-        if (who != null && whom != null && !who.equals(whom)) {
-            console.log(JSON.stringify(who) + " attacks " + JSON.stringify(whom));
-            gameState["roll"].push(req.headers["cookie"]);
-            gameState["rollFor"][req.headers["cookie"]] = ["attack", who, whom];
-        }
+    else if (req.url.startsWith('/action/attack')) {
+        actions.attack(gameState, req.headers["cookie"], data);
     }
     else if (req.url.startsWith('/action/roll')) {
-        var rollFor = gameState["rollFor"][req.headers["cookie"]];
-        var index = gameState["roll"].indexOf(req.headers["cookie"]);
-        if (rollFor && index !== -1) {
-            if (rollFor[0] === "attack") {
-                for (var key in gameState["board"]) {
-                    var deck = gameState["board"][key];
-
-                    for (var posStr in deck["position"]) {
-                        var pos = posStr.split(',');
-
-                        if (rollFor[2].equals(pos)) {
-                            if (deck["position"][posStr]["dmg"]) {
-                                deck["position"][posStr]["dmg"] += 1;
-                            } else {
-                                deck["position"][posStr]["dmg"] = 1;
-                            }
-
-                            if (deck["position"][posStr]["dmg"] >= deck["position"][posStr]["hits"]) {
-                                delete deck["position"][posStr];
-                            }
-                        }
-                    }
-                }
-            }
-
-            gameState["roll"].splice(index, 1);
-            delete gameState["rollFor"][req.headers["cookie"]];
-        }
+        actions.roll(gameState, req.headers["cookie"]);
     }
     else if (req.url.startsWith('/action/nextphase')) {
-        if (gameState["phase"] === 4) {
-            // next turn
-            gameState["phase"] = 0;
-            gameState["tocken"] = nextPlayer(req.headers["cookie"]);
-        } else {
-            gameState["phase"] += 1;
-        }
+        actions.nextPhase(gameState, req.headers["cookie"]);
+    }
+    else if (req.url.startsWith('/action/draw')) {
+        actions.draw(gameState, req.headers["cookie"]);
+    }
+    else if (req.url.startsWith('/action/summon')) {
+        actions.summon(gameState, req.headers["cookie"], data);
     }
 }
 
@@ -235,37 +328,13 @@ function processPost(request) {
 
 function processActionGet(req, res) {
     if (req.url.startsWith('/action/state')) {
-        console.log(JSON.stringify(gameState));
-        console.log("###########");
+        var simpleState = actions.userState(gameState, req.headers["cookie"]);
 
-        var simpleBoard = [];
-        simpleBoard.push(gameState["board"][req.headers["cookie"]]);
-        Object.keys(gameState["board"]).forEach(function(key){
-            if (key != req.headers["cookie"]) {
-                simpleBoard.push(gameState["board"][key]);
-            }
-        });
-
-        var simplestate = {};
-        simplestate["board"] = simpleBoard;
-        simplestate["phase"] = phases[gameState["phase"]];
-
-        if (req.headers["cookie"] == gameState["tocken"]) {
-            simplestate["tocken"] = true;
-        } else {
-            simplestate["tocken"] = false;
-        }
-
-        if (gameState["roll"].indexOf(req.headers["cookie"]) !== -1) {
-            simplestate["roll"] = true;
-        } else {
-            simplestate["roll"] = false;
-        }
         res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         res.setHeader("Pragma", "no-cache");
         res.setHeader("Expires", "0");
         res.writeHead(200);
-        res.end(JSON.stringify(simplestate));
+        res.end(JSON.stringify(simpleState));
     }
     else {
         res.end();
